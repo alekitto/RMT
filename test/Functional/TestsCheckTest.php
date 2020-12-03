@@ -30,7 +30,7 @@ class TestsCheckTest extends TestCase
      */
     public function succeeds_when_command_finished_within_the_default_configured_timeout_of_60s(): void
     {
-        $check = new TestsCheck(array('command' => 'echo OK'));
+        $check = new TestsCheck(['command' => 'echo OK']);
         $check->execute();
     }
 
@@ -40,7 +40,7 @@ class TestsCheckTest extends TestCase
      */
     public function succeeds_when_command_finished_within_configured_timeout(): void
     {
-        $check = new TestsCheck(array('command' => 'echo OK', 'timeout' => 0.100));
+        $check = new TestsCheck(['command' => 'echo OK', 'timeout' => 0.100]);
         $check->execute();
     }
 
@@ -52,7 +52,7 @@ class TestsCheckTest extends TestCase
         $this->expectException(Throwable::class);
         $this->expectExceptionMessageMatches('~process.*time.*out~');
 
-        $check = new TestsCheck(array('command' => 'sleep 1', 'timeout' => 0.100));
+        $check = new TestsCheck(['command' => 'sleep 1', 'timeout' => 0.100]);
         $check->execute();
     }
 }

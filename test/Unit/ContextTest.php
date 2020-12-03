@@ -104,7 +104,7 @@ class ContextTest extends TestCase
     public function testAddToListWithOptions(): void
     {
         $context = Context::getInstance();
-        $options = array('pi' => 3.14);
+        $options = ['pi' => 3.14];
         $context->addToList('foo', ServiceClass::class, $options);
         $objects = $context->getList('foo');
         self::assertEquals($options, $objects[0]->getOptions());
@@ -132,6 +132,6 @@ class ContextTest extends TestCase
     {
         $context = Context::getInstance();
         $context->createEmptyList('prerequisites');
-        self::assertEquals(array(), $context->getList('prerequisites'));
+        self::assertEquals([], $context->getList('prerequisites'));
     }
 }

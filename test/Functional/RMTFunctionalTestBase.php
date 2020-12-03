@@ -33,12 +33,12 @@ class RMTFunctionalTestBase extends ForwardCompatibilityTestCase
         exec("php $rmtDir/command.php init --configonly=n --generator=basic-increment --persister=vcs-tag --vcs=git");
     }
 
-    protected function createConfig($generator, $persister, $otherConfig = array()): void
+    protected function createConfig($generator, $persister, $otherConfig = []): void
     {
-        $allConfig = array_merge($otherConfig, array(
+        $allConfig = array_merge($otherConfig, [
             'version-persister' => $persister,
             'version-generator' => $generator,
-        ));
+        ]);
         file_put_contents('.rmt.yml', Yaml::dump($allConfig));
     }
 
@@ -49,7 +49,7 @@ class RMTFunctionalTestBase extends ForwardCompatibilityTestCase
         $manager->update(
             $format === 'semantic' ? '0.0.1' : '1',
             'First release',
-            $format === 'semantic' ? array('type' => 'patch') : null
+            $format === 'semantic' ? ['type' => 'patch'] : null
         );
     }
 

@@ -145,7 +145,7 @@ class InformationRequest
                 }, 'Text must be provided');
                 break;
             case 'yes-no':
-                $value = lcfirst($value[0]);
+                $value = lcfirst($value[0] ?? '');
                 $this->validateValue($value, function ($v) {
                     return $v === 'y' || $v === 'n';
                 }, "Must be 'y' or 'n'");

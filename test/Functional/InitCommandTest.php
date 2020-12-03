@@ -35,7 +35,7 @@ class InitCommandTest extends RMTFunctionalTestBase
         self::assertEquals('simple', $defaultConfig['version-generator']);
         self::assertEquals('semantic', $masterConfig['version-generator']);
 
-        self::assertEquals(array('vcs-tag' => array('tag-prefix' => '{branch-name}_')), $defaultConfig['version-persister']);
-        self::assertEquals(array('vcs-tag' => array('tag-prefix' => '')), $masterConfig['version-persister']);
+        self::assertEquals(['vcs-tag' => ['tag-prefix' => '{branch-name}_']], $defaultConfig['version-persister']);
+        self::assertEquals(['vcs-tag' => ['tag-prefix' => '']], $masterConfig['version-persister']);
     }
 }

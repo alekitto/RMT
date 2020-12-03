@@ -16,7 +16,7 @@ class ExternalTasksTest extends RMTFunctionalTestBase
     public function testInvalidScript(): void
     {
         $scriptName = 'invalid-script-name.php';
-        $this->createConfig('simple', 'git', array('pre-release-actions' => array($scriptName)));
+        $this->createConfig('simple', 'git', ['pre-release-actions' => [$scriptName]]);
         exec('./RMT release -n', $output);
         $output = implode("\n", $output);
 //        $this->manualDebug();
@@ -28,9 +28,9 @@ class ExternalTasksTest extends RMTFunctionalTestBase
     {
         $this->initGit();
         file_put_contents('touch-file1.php', '<?php touch("file1");');
-        $this->createConfig('simple', 'git', array(
-            'pre-release-actions' => array('touch-file1.php'),
-        ));
+        $this->createConfig('simple', 'git', [
+            'pre-release-actions' => ['touch-file1.php'],
+        ]);
         exec('./RMT release -n');
         exec('ls', $files);
         self::assertContains('file1', $files, 'file1 in present in ['.implode(', ', $files).']');

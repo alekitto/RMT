@@ -29,7 +29,7 @@ class InformationCollectorTest extends TestCase
     {
         $ic = new InformationCollector();
         self::assertFalse($ic->hasRequest('foo') || $ic->hasRequest('type'));
-        $ic->registerRequests(array(new InformationRequest('foo'), 'type'));
+        $ic->registerRequests([new InformationRequest('foo'), 'type']);
         self::assertTrue($ic->hasRequest('foo'));
         self::assertTrue($ic->hasRequest('type'));
     }

@@ -29,19 +29,19 @@ class BuildPharPackageActionTest extends RMTFunctionalTestBase
 
         $destination = '/tmp/configured';
 
-        $this->createConfig('semantic', 'vcs-tag', array(
+        $this->createConfig('semantic', 'vcs-tag', [
             'vcs' => 'git',
-            'pre-release-actions' => array(
-                'build-phar-package' => array(
+            'pre-release-actions' => [
+                'build-phar-package' => [
                     'package-name' => 'my-new-package',
                     'destination' => $destination,
                     'excluded-paths' => '/^(?!.*excluded-file|.*\.git).*$/im',
-                    'metadata' => array('owner' => 'Paddington'),
+                    'metadata' => ['owner' => 'Paddington'],
                     'default-stub-cli' => self::STUB_FILE,
                     'default-stub-web' => self::STUB_FILE_WEB,
-                ),
-            ),
-        ));
+                ],
+            ],
+        ]);
 
         $this->initGit();
 

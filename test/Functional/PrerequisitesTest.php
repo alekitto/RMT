@@ -15,10 +15,10 @@ class PrerequisitesTest extends RMTFunctionalTestBase
 {
     public function testDisplayLastChange(): void
     {
-        $this->createConfig('simple', 'vcs-tag', array(
-            'prerequisites' => array('display-last-changes'),
+        $this->createConfig('simple', 'vcs-tag', [
+            'prerequisites' => ['display-last-changes'],
             'vcs' => 'git',
-        ));
+        ]);
         $this->initGit();
         exec('git tag 1');
         exec('echo "foo" > fileFoo');
@@ -36,10 +36,10 @@ class PrerequisitesTest extends RMTFunctionalTestBase
 
     public function testWorkingCopyCheckFailsWithLocalModifications(): void
     {
-        $this->createConfig('simple', 'vcs-tag', array(
-            'prerequisites' => array('working-copy-check'),
+        $this->createConfig('simple', 'vcs-tag', [
+            'prerequisites' => ['working-copy-check'],
             'vcs' => 'git',
-        ));
+        ]);
         $this->initGit();
         exec('git tag 1');
 
@@ -52,10 +52,10 @@ class PrerequisitesTest extends RMTFunctionalTestBase
 
     public function testWorkingCopyWithIgnoreCheck(): void
     {
-        $this->createConfig('simple', 'vcs-tag', array(
-            'prerequisites' => array('working-copy-check'=>array('allow-ignore'=>true)),
+        $this->createConfig('simple', 'vcs-tag', [
+            'prerequisites' => ['working-copy-check'=> ['allow-ignore'=>true]],
             'vcs' => 'git',
-        ));
+        ]);
         $this->initGit();
         exec('git tag 1');
 
@@ -63,15 +63,15 @@ class PrerequisitesTest extends RMTFunctionalTestBase
         exec('./RMT release -n --ignore-check', $consoleOutput, $exitCode);
         self::assertEquals(0, $exitCode);
         exec('git tag', $tags);
-        self::assertEquals(array('1', '2'), $tags);
+        self::assertEquals(['1', '2'], $tags);
     }
 
     public function testWorkingCopy(): void
     {
-        $this->createConfig('simple', 'vcs-tag', array(
-            'prerequisites' => array('working-copy-check'),
+        $this->createConfig('simple', 'vcs-tag', [
+            'prerequisites' => ['working-copy-check'],
             'vcs' => 'git',
-        ));
+        ]);
         $this->initGit();
         exec('git tag 1');
 
@@ -81,6 +81,6 @@ class PrerequisitesTest extends RMTFunctionalTestBase
         exec('./RMT release -n', $consoleOutput, $exitCode);
         self::assertEquals(0, $exitCode, implode(PHP_EOL, $consoleOutput));
         exec('git tag', $tags2);
-        self::assertEquals(array('1', '2'), $tags2);
+        self::assertEquals(['1', '2'], $tags2);
     }
 }

@@ -15,16 +15,16 @@ class ChangelogDumpCommitsTest extends RMTFunctionalTestBase
 {
     public function testDump(): void
     {
-        $this->createConfig('semantic', 'vcs-tag', array(
+        $this->createConfig('semantic', 'vcs-tag', [
             'vcs' => 'git',
-            'pre-release-actions' => array(
-                'changelog-update' => array(
+            'pre-release-actions' => [
+                'changelog-update' => [
                     'format' => 'semantic',
                     'dump-commits' => true,
-                ),
+                ],
                 'vcs-commit' => null,
-            ),
-        ));
+            ],
+        ]);
         $this->initGit();
 
         // First release must contain as message explaining why there is no commit dump

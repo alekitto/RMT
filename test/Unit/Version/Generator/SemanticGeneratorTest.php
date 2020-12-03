@@ -54,7 +54,7 @@ class SemanticGeneratorTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("The option [type] must be one of: {patch, minor, major}, \"full\" given");
 
-        $generator = new SemanticGenerator(array('type' => 'full', 'label' => 'none'));
+        $generator = new SemanticGenerator(['type' => 'full', 'label' => 'none']);
         $generator->generateNextVersion('1.0.0');
     }
 

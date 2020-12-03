@@ -44,7 +44,7 @@ class HgTest extends TestCase
     {
         $vcs = new Hg();
         $files = $vcs->getModifiedFilesSince('1.1.0');
-        self::assertEquals(array('file1' => 'M', 'file3' => 'A', '.hgtags' => 'M'), $files);
+        self::assertEquals(['file1' => 'M', 'file3' => 'A', '.hgtags' => 'M'], $files);
     }
 
     public function testGetLocalModifications(): void

@@ -63,6 +63,8 @@ class Application extends BaseApplication
 
             if (method_exists($this, 'renderThrowable')) {
                 $this->renderThrowable($e, $output);
+            } else {
+                $this->renderException($e, $output);
             }
 
             exit(1);
