@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the project RMT
@@ -56,8 +56,8 @@ class FilesUpdateAction extends BaseAction
      */
     protected function updateFile($filename, $pattern = null)
     {
-        $current = Context::getParam('current-version');
-        $next = Context::getParam('new-version');
+        $current = (string) Context::getParam('current-version');
+        $next = (string) Context::getParam('new-version');
 
         $content = file_get_contents($filename);
         if (false === strpos($content, $current)) {

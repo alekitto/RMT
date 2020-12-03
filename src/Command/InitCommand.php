@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the project RMT
@@ -35,7 +35,7 @@ class InitCommand extends BaseCommand
         $projectDir = $this->getApplication()->getProjectRootDir();
         $this->executablePath = $projectDir.'/RMT';
         $this->configPath = $configPath ?? $projectDir.'/.rmt.yml';
-        $this->commandPath = realpath(__DIR__.'/../../../../command.php');
+        $this->commandPath = realpath(__DIR__.'/../../command.php');
 
         // If possible try to generate a relative link for the command if RMT is installed inside the project
         if (strpos($this->commandPath, $projectDir) === 0) {

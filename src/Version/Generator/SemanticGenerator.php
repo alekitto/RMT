@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the project RMT
@@ -39,10 +39,10 @@ class SemanticGenerator implements GeneratorInterface
      */
     public function generateNextVersion($currentVersion)
     {
-        $type = $this->options[ 'type' ] ?? Context::get('information-collector')->getValueFor('type');
+        $type = $this->options['type'] ?? Context::get('information-collector')->getValueFor('type');
         $label = 'none';
         if ($this->options['allow-label'] ?? false) {
-            $label = $this->options[ 'label' ] ?? Context::get('information-collector')->getValueFor('label');
+            $label = $this->options['label'] ?? Context::get('information-collector')->getValueFor('label');
         }
 
         // Type validation

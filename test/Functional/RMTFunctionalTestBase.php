@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the project RMT
@@ -29,7 +29,7 @@ class RMTFunctionalTestBase extends ForwardCompatibilityTestCase
         chdir($this->tempDir);
 
         // Create the executable task inside
-        $rmtDir = realpath(__DIR__ . '/../../../../../');
+        $rmtDir = realpath(__DIR__ . '/../../');
         exec("php $rmtDir/command.php init --configonly=n --generator=basic-increment --persister=vcs-tag --vcs=git");
     }
 

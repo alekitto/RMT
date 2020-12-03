@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Liip\RMT\Tests\Functional;
 
-use Exception;
 use Liip\RMT\Context;
 use Liip\RMT\Prerequisite\TestsCheck;
 use Liip\RMT\Information\InformationCollector;

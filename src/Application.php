@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the project RMT
@@ -48,8 +48,10 @@ class Application extends BaseApplication
         try {
             // Add the default command
             $this->add(new InitCommand());
+
             // Add command that require the config file
-            if (file_exists($this->getConfigFilePath())) {
+            $configFile = $this->getConfigFilePath();
+            if ($configFile !== null && file_exists($configFile)) {
                 $this->add(new ReleaseCommand());
                 $this->add(new CurrentCommand());
                 $this->add(new ChangesCommand());
@@ -113,7 +115,7 @@ class Application extends BaseApplication
             }
         } else {
             try {
-                $config = Yaml::parse(file_get_contents($configFile), true);
+                $config = Yaml::parse(file_get_contents($configFile));
             } catch (\Exception $e) {
                 throw new \Exception(
                     "Impossible to parse your config file ($configFile), ".

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the project RMT
@@ -31,7 +31,7 @@ class ChangelogManagerTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        $this->dir = sys_get_temp_dir() . '/' . md5(time());
+        $this->dir = sys_get_temp_dir() . '/' . md5((string) time());
         mkdir($this->dir);
         new ChangelogManager($this->dir, 'semantic');
     }

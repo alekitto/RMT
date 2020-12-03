@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the project RMT
@@ -18,7 +18,7 @@ class InitCommandTest extends RMTFunctionalTestBase
     public function testInitConfig(): void
     {
         $configFile = '.rmt.yml';
-        unlink($configFile);
+        @unlink($configFile);
         self::assertFileDoesNotExist($configFile);
         exec('./RMT init --configonly=n --vcs=git --generator=semantic-versioning --persister=vcs-tag -n');
 
