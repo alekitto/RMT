@@ -4,10 +4,10 @@
 
     <testsuites>
         <testsuite name="RMT Unit test suite">
-            <directory suffix="Test.php">./test/Liip/RMT/Tests/Unit</directory>
+            <directory suffix="Test.php">./test/Unit</directory>
         </testsuite>
         <testsuite name="RMT Functional test suite">
-            <directory suffix="Test.php">./test/Liip/RMT/Tests/Functional</directory>
+            <directory suffix="Test.php">./test/Functional</directory>
         </testsuite>
     </testsuites>
 

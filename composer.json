@@ -30,8 +30,13 @@
         "sensiolabs/security-checker": "^6.0"
     },
     "autoload": {
-        "psr-0": {
-            "Liip": "src"
+        "psr-4": {
+            "Liip\\RMT\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Liip\\RMT\\Tests\\": "test/"
         }
     },
     "bin": ["RMT"],
