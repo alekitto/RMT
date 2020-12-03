@@ -28,6 +28,8 @@ use Symfony\Component\Console\Question\Question;
  */
 class Output extends ConsoleOutput
 {
+    use DoWriteTrait;
+
     protected $indentationLevel;
     protected $indentationSize = 4;
     protected $positionIsALineStart = true;
@@ -47,19 +49,6 @@ class Output extends ConsoleOutput
         $this->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow'));
         $this->getFormatter()->setStyle('question', new OutputFormatterStyle('black', 'cyan'));
         $this->getFormatter()->setStyle('title', new OutputFormatterStyle('white', 'blue'));
-    }
-
-    public function doWrite(string $message, bool $newline)
-    {
-        // In case the $message is multi lines
-        $message = str_replace(PHP_EOL, PHP_EOL.$this->getIndentPadding(), $message);
-
-        if ($this->positionIsALineStart) {
-            $message = $this->getIndentPadding().$message;
-        }
-
-        $this->positionIsALineStart = $newline;
-        parent::doWrite($message, $newline);
     }
 
     public function indent($repeat = 1)

@@ -25,7 +25,7 @@ class InitCommandTest extends RMTFunctionalTestBase
 //        $this->manualDebug();
 
         self::assertFileExists($configFile);
-        $config = Yaml::parse(file_get_contents($configFile), true);
+        $config = Yaml::parse(file_get_contents($configFile));
 
         $defaultConfig = $config['_default'];
         $masterConfig = $config['master'];
