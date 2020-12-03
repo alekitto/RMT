@@ -11,6 +11,9 @@
 
 namespace Liip\RMT\Changelog\Formatter;
 
+use InvalidArgumentException;
+use Liip\RMT\Exception;
+
 /**
  * Class SemanticChangelogFormatter
  *
@@ -46,15 +49,15 @@ class SemanticChangelogFormatter
     public function updateExistingLines($lines, $version, $comment, $options)
     {
         if (!isset($options['type'])) {
-            throw new \InvalidArgumentException('Option [type] in mandatory');
+            throw new InvalidArgumentException('Option [type] in mandatory');
         }
         $type = $options['type'];
-        if (!in_array($type, array('patch', 'minor', 'major'))) {
-            throw new \InvalidArgumentException("Invalid type [$type]");
+        if (!in_array($type, ['patch', 'minor', 'major'])) {
+            throw new InvalidArgumentException("Invalid type [$type]");
         }
 
         // Specific case for new Changelog file. We always have to write down a major
-        if (count($lines) == 0) {
+        if (count($lines) === 0) {
             $type = 'major';
         }
 
@@ -94,33 +97,30 @@ class SemanticChangelogFormatter
      */
     protected function getNewLines($type, $version, $comment)
     {
-        list($major, $minor, $patch) = explode('.', $version);
-        if ($type == 'major') {
+        [$major, $minor] = explode('.', $version);
+        if ($type === 'major') {
             $title = "version $major  $comment";
 
-            return array_merge(
-                array(
-                    '',
-                    strtoupper($title),
-                    str_pad('', strlen($title), '='),
-                ),
-                $this->getNewLines('minor', $version, $comment)
-            );
-        } elseif ($type == 'minor') {
-            return array_merge(
-                array(
-                    '',
-                    "   Version $major.$minor - $comment",
-                ),
-                $this->getNewLines('patch', $version, 'initial release')
-            );
-        } else { //patch
-            $date = $this->getFormattedDate();
-
-            return array(
-                "      $date  $version  $comment",
-            );
+            return array_merge([
+                '',
+                strtoupper($title),
+                str_pad('', strlen($title), '='),
+            ], $this->getNewLines('minor', $version, $comment));
         }
+
+        if ($type === 'minor') {
+            return array_merge([
+                '',
+                "   Version $major.$minor - $comment",
+            ], $this->getNewLines('patch', $version, 'initial release'));
+        }
+
+        //patch
+        $date = $this->getFormattedDate();
+
+        return [
+            "      $date  $version  $comment",
+        ];
     }
 
     /**
@@ -131,17 +131,17 @@ class SemanticChangelogFormatter
      *
      * @return int The position where to insert
      *
-     * @throws \Liip\RMT\Exception
+     * @throws Exception
      */
     protected function findPositionToInsert($lines, $type)
     {
         // Major are always inserted at the top
-        if ($type == 'major') {
+        if ($type === 'major') {
             return 0;
         }
 
         // Minor must be inserted one line above the first major section
-        if ($type == 'minor') {
+        if ($type === 'minor') {
             foreach ($lines as $pos => $line) {
                 if (preg_match('/^=======/', $line)) {
                     return $pos + 1;
@@ -150,7 +150,7 @@ class SemanticChangelogFormatter
         }
 
         // Patch should go directly after the first minor
-        if ($type == 'patch') {
+        if ($type === 'patch') {
             foreach ($lines as $pos => $line) {
                 if (preg_match('/Version\s\d+\.\d+\s\-/', $line)) {
                     return $pos + 1;
@@ -158,7 +158,7 @@ class SemanticChangelogFormatter
             }
         }
 
-        throw new \Liip\RMT\Exception('Invalid changelog formatting');
+        throw new Exception('Invalid changelog formatting');
     }
 
     protected function getFormattedDate()

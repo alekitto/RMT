@@ -11,6 +11,8 @@
 
 namespace Liip\RMT\Changelog\Formatter;
 
+use Liip\RMT\Exception;
+
 /**
  * Class MarkdownChangelogFormatter
  *
@@ -51,32 +53,29 @@ class MarkdownChangelogFormatter extends SemanticChangelogFormatter
      */
     protected function getNewLines($type, $version, $comment)
     {
-        list($major, $minor, $patch) = explode('.', $version);
-        if ($type == 'major') {
+        [$major, $minor] = explode('.', $version);
+        if ($type === 'major') {
             $title = "version $major  $comment";
 
-            return array_merge(
-                array(
-                    '',
-                    '## '.strtoupper($title)
-                ),
-                $this->getNewLines('minor', $version, $comment)
-            );
-        } elseif ($type == 'minor') {
-            return array_merge(
-                array(
-                    '',
-                    " * Version **$major.$minor** - $comment",
-                ),
-                $this->getNewLines('patch', $version, 'initial release')
-            );
-        } else { //patch
-            $date = $this->getFormattedDate();
-
-            return array(
-                "   * $date  **$version**  $comment",
-            );
+            return array_merge([
+                '',
+                '## '.strtoupper($title)
+            ], $this->getNewLines('minor', $version, $comment));
         }
+
+        if ($type === 'minor') {
+            return array_merge([
+                '',
+                " * Version **$major.$minor** - $comment",
+            ], $this->getNewLines('patch', $version, 'initial release'));
+        }
+
+        //patch
+        $date = $this->getFormattedDate();
+
+        return [
+            "   * $date  **$version**  $comment",
+        ];
     }
 
     /**
@@ -87,17 +86,17 @@ class MarkdownChangelogFormatter extends SemanticChangelogFormatter
      *
      * @return int The position where to insert
      *
-     * @throws \Liip\RMT\Exception
+     * @throws Exception
      */
     protected function findPositionToInsert($lines, $type)
     {
         // Major are always inserted at the top
-        if ($type == 'major') {
+        if ($type === 'major') {
             return 0;
         }
 
         // Minor must be inserted one line above the first major section
-        if ($type == 'minor') {
+        if ($type === 'minor') {
             foreach ($lines as $pos => $line) {
                 if (preg_match('/^##\ +/', $line)) {
                     return $pos + 1;
@@ -106,7 +105,7 @@ class MarkdownChangelogFormatter extends SemanticChangelogFormatter
         }
 
         // Patch should go directly after the first minor
-        if ($type == 'patch') {
+        if ($type === 'patch') {
             foreach ($lines as $pos => $line) {
                 if (preg_match('/\ \*\ Version\s\*\*\d+\.\d+\*\*\s\-/', $line)) {
                     return $pos + 1;
@@ -114,17 +113,12 @@ class MarkdownChangelogFormatter extends SemanticChangelogFormatter
             }
         }
 
-        throw new \Liip\RMT\Exception('Invalid changelog formatting');
+        throw new Exception('Invalid changelog formatting');
     }
 
     protected function getFormattedDate()
     {
         return date('Y-m-d H:i');
-    }
-
-    public function getLastVersionRegex()
-    {
-        return '#\s+\d+/\d+/\d+\s\d+:\d+\s+([^\s]+)#';
     }
 
     /**

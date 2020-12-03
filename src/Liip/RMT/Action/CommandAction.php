@@ -11,6 +11,7 @@
 
 namespace Liip\RMT\Action;
 
+use RuntimeException;
 use Symfony\Component\Process\Process;
 use Liip\RMT\Context;
 
@@ -21,15 +22,15 @@ class CommandAction extends BaseAction
 {
     public function __construct($options)
     {
-        $this->options = array_merge(array(
+        parent::__construct(array_merge([
             'cmd' => null,
             'live_output' => true,
             'stop_on_error' => true,
             'timeout' => 600,
-        ), $options);
+        ], $options));
 
-        if ($this->options['cmd'] == null) {
-            throw new \RuntimeException('Missing [cmd] option');
+        if ($this->options['cmd'] === null) {
+            throw new RuntimeException('Missing [cmd] option');
         }
     }
 
@@ -40,11 +41,11 @@ class CommandAction extends BaseAction
 
         // Prepare a callback for live output
         $callback = null;
-        if ($this->options['live_output'] == true) {
-            $callback = function ($type, $buffer) {
-                $decorator = array('','');
-                if ($type == Process::ERR) {
-                    $decorator = array('<error>','</error>');
+        if ($this->options['live_output']) {
+            $callback = static function ($type, $buffer) {
+                $decorator = ['',''];
+                if ($type === Process::ERR) {
+                    $decorator = ['<error>','</error>'];
                 }
                 Context::get('output')->write($decorator[0] . $buffer.$decorator[1]);
             };
@@ -61,7 +62,7 @@ class CommandAction extends BaseAction
 
         // Break up if the result is not good
         if ($this->options['stop_on_error'] && $process->getExitCode() !== 0) {
-            throw new \RuntimeException("Command [$command] exit with code " . $process->getExitCode());
+            throw new RuntimeException("Command [$command] exit with code " . $process->getExitCode());
         }
     }
 }

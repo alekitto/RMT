@@ -16,7 +16,7 @@ class SimpleChangelogFormatter
     public function updateExistingLines($lines, $version, $comment, $options)
     {
         $date = $this->getFormattedDate();
-        array_splice($lines, 0, 0, array("$date  $version  $comment"));
+        array_splice($lines, 0, 0, ["$date  $version  $comment"]);
 
         if (isset($options['extra-lines'])) {
             array_splice($lines, 1, 0, $options['extra-lines']);

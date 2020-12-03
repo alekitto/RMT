@@ -11,6 +11,7 @@
 
 namespace Liip\RMT\Prerequisite;
 
+use Exception;
 use Liip\RMT\Context;
 use Liip\RMT\Information\InformationRequest;
 use Liip\RMT\Action\BaseAction;
@@ -25,13 +26,13 @@ class WorkingCopyCheck extends BaseAction
      *
      * @var int
      */
-    const EXCEPTION_CODE = 412;
+    public const EXCEPTION_CODE = 412;
 
     public $ignoreCheckOptionName = 'ignore-check';
 
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
-        parent::__construct(array_merge(array('allow-ignore' => false), $options));
+        parent::__construct(array_merge(['allow-ignore' => false], $options));
     }
 
     public function getTitle()
@@ -48,7 +49,7 @@ class WorkingCopyCheck extends BaseAction
                 return;
             }
 
-            throw new \Exception(
+            throw new Exception(
                 'The option "' . $this->ignoreCheckOptionName . '" only works if the "allow-ignore" configuration ' .
                 'key is set to true.'
             );
@@ -56,7 +57,7 @@ class WorkingCopyCheck extends BaseAction
 
         $modCount = count(Context::get('vcs')->getLocalModifications());
         if ($modCount > 0) {
-            throw new \Exception(
+            throw new Exception(
                 'Your working directory contains ' . $modCount . ' local modification' . ($modCount > 1 ? 's' : '') .
                 '. Use the --' . $this->ignoreCheckOptionName . ' option (along with the "allow-ignore" ' .
                 'configuration key set to true) to bypass this check.' . "\n" . 'WARNING, if your release task ' .
@@ -70,13 +71,13 @@ class WorkingCopyCheck extends BaseAction
 
     public function getInformationRequests()
     {
-        return array(
-            new InformationRequest($this->ignoreCheckOptionName, array(
+        return [
+            new InformationRequest($this->ignoreCheckOptionName, [
                 'description' => 'Do not process the check for a clean VCS working copy (if "allow-ignore" ' .
                     'configuration key is set to true)',
                 'type' => 'confirmation',
                 'interactive' => false,
-            ))
-        );
+            ])
+        ];
     }
 }

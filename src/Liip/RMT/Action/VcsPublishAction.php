@@ -19,15 +19,15 @@ use Liip\RMT\Context;
  */
 class VcsPublishAction extends BaseAction
 {
-    const AUTO_PUBLISH_OPTION = 'auto-publish';
+    public const AUTO_PUBLISH_OPTION = 'auto-publish';
 
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
-        parent::__construct(array_merge(array(
+        parent::__construct(array_merge([
             'ask-confirmation' => true,
             'remote-name' => null,
             'ask-remote-name' => false,
-        ), $options));
+        ], $options));
     }
 
     public function execute()
@@ -38,7 +38,7 @@ class VcsPublishAction extends BaseAction
             $ic = Context::get('information-collector');
             if (!$ic->hasValueFor(self::AUTO_PUBLISH_OPTION)) {
                 $answer = Context::get('output')->askConfirmation('Do you want to publish your release (default: <green>y</green>): ', Context::get('input'));
-                $ic->setValueFor(self::AUTO_PUBLISH_OPTION, $answer == true ? 'y' : 'n');
+                $ic->setValueFor(self::AUTO_PUBLISH_OPTION, $answer ? 'y' : 'n');
             }
 
             // Skip if the user didn't ask for publishing
@@ -62,20 +62,20 @@ class VcsPublishAction extends BaseAction
 
     public function getInformationRequests()
     {
-        $requests = array();
+        $requests = [];
         if ($this->options['ask-confirmation']) {
-            $requests[] = new InformationRequest(self::AUTO_PUBLISH_OPTION, array(
+            $requests[] = new InformationRequest(self::AUTO_PUBLISH_OPTION, [
                 'description' => 'Changes will be published automatically',
                 'type' => 'yes-no',
                 'interactive' => false,
-            ));
+            ]);
         }
         if ($this->options['ask-remote-name']) {
-            $requests[] = new InformationRequest('remote', array(
+            $requests[] = new InformationRequest('remote', [
                 'description' => 'Remote to push changes',
                 'type' => 'text',
                 'default' => 'origin',
-            ));
+            ]);
         }
 
         return $requests;
@@ -91,10 +91,7 @@ class VcsPublishAction extends BaseAction
         if ($this->options['ask-remote-name']) {
             return Context::get('information-collector')->getValueFor('remote');
         }
-        if ($this->options['remote-name'] !== null) {
-            return $this->options['remote-name'];
-        }
 
-        return;
+        return $this->options[ 'remote-name' ] ?? null;
     }
 }

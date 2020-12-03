@@ -22,18 +22,18 @@ class ChangelogUpdateAction extends BaseAction
 {
     public function __construct($options)
     {
-        $this->options = array_merge(array(
+        parent::__construct(array_merge([
             'dump-commits' => false,
             'exclude-merge-commits' => false,
             'format' => 'simple',
             'file' => 'CHANGELOG',
-        ), $options);
+        ], $options));
     }
 
     public function execute()
     {
         // Handle the commits dump
-        if ($this->options['dump-commits'] == true) {
+        if ($this->options['dump-commits'] === true) {
             try {
                 $extraLines = Context::get('vcs')->getAllModificationsSince(
                     Context::get('version-persister')->getCurrentVersionTag(),
@@ -52,7 +52,7 @@ class ChangelogUpdateAction extends BaseAction
             Context::getParam('new-version'),
             Context::get('information-collector')->getValueFor('comment'),
             array_merge(
-                array('type' => Context::get('information-collector')->getValueFor('type', null)),
+                ['type' => Context::get('information-collector')->getValueFor('type', null)],
                 $this->options
             )
         );
@@ -61,6 +61,6 @@ class ChangelogUpdateAction extends BaseAction
 
     public function getInformationRequests()
     {
-        return array('comment');
+        return ['comment'];
     }
 }

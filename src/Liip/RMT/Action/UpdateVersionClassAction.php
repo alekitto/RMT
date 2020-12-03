@@ -14,6 +14,7 @@ namespace Liip\RMT\Action;
 use Liip\RMT\Context;
 use Liip\RMT\Exception;
 use Liip\RMT\Config\Exception as ConfigException;
+use ReflectionClass;
 
 /**
  * An updater that updates the version information stored in a class.
@@ -33,11 +34,6 @@ use Liip\RMT\Config\Exception as ConfigException;
  */
 class UpdateVersionClassAction extends BaseAction
 {
-    public function __construct($options)
-    {
-        parent::__construct($options);
-    }
-
     public function execute()
     {
         if (!isset($this->options['class'])) {
@@ -47,7 +43,7 @@ class UpdateVersionClassAction extends BaseAction
         if (file_exists($this->options['class'])) {
             $filename = $this->options['class'];
         } else {
-            $versionClass = new \ReflectionClass($this->options['class']);
+            $versionClass = new ReflectionClass($this->options['class']);
             $filename = $versionClass->getFileName();
         }
 
@@ -60,7 +56,7 @@ class UpdateVersionClassAction extends BaseAction
      *
      * @param string $filename
      *
-     * @throws \Liip\RMT\Exception
+     * @throws Exception
      */
     protected function updateFile($filename)
     {

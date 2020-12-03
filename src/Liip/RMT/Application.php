@@ -18,6 +18,7 @@ use Liip\RMT\Command\ReleaseCommand;
 use Liip\RMT\Command\CurrentCommand;
 use Liip\RMT\Command\ConfigCommand;
 use Liip\RMT\Command\InitCommand;
+use Liip\RMT\Output\Output;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application as BaseApplication;
@@ -55,13 +56,11 @@ class Application extends BaseApplication
                 $this->add(new ConfigCommand());
             }
         } catch (\Exception $e) {
-            $output = new \Liip\RMT\Output\Output();
+            $output = new Output();
             $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
 
             if (method_exists($this, 'renderThrowable')) {
                 $this->renderThrowable($e, $output);
-            } else {
-                $this->renderException($e, $output);
             }
 
             exit(1);
@@ -73,28 +72,28 @@ class Application extends BaseApplication
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
-        return parent::run($input, new \Liip\RMT\Output\Output());
+        return parent::run($input, new Output());
     }
 
     public function getProjectRootDir()
     {
         if (defined('RMT_ROOT_DIR')) {
             return RMT_ROOT_DIR;
-        } else {
-            return getcwd();
         }
+
+        return getcwd();
     }
 
     public function getConfigFilePath()
     {
-        $validConfigFileName = array('.rmt.yml', '.rmt.json', 'rmt.yml', 'rmt.json');
+        $validConfigFileName = ['.rmt.yml', '.rmt.json', 'rmt.yml', 'rmt.json'];
         foreach ($validConfigFileName as $filename) {
             if (file_exists($path = $this->getProjectRootDir().DIRECTORY_SEPARATOR.$filename)) {
                 return $path;
             }
         }
 
-        return;
+        return null;
     }
 
     public function getConfig()
@@ -107,7 +106,7 @@ class Application extends BaseApplication
             );
         }
 
-        if (pathinfo($configFile, PATHINFO_EXTENSION) == 'json') {
+        if (pathinfo($configFile, PATHINFO_EXTENSION) === 'json') {
             $config = json_decode(file_get_contents($configFile), true);
             if (!is_array($config)) {
                 throw new \Exception("Impossible to parse your config file ($configFile), you probably have an error in the JSON syntax");
@@ -126,12 +125,9 @@ class Application extends BaseApplication
         return $config;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function asText($namespace = null, $raw = false)
     {
-        $messages = array();
+        $messages = [];
 
         // Title
         $title = 'RMT '.$this->getLongVersion();
@@ -154,7 +150,7 @@ class Application extends BaseApplication
         }
         $width += 2;
         foreach ($commands as $name => $command) {
-            if (in_array($name, array('list', 'help'))) {
+            if (in_array($name, ['list', 'help'])) {
                 continue;
             }
             $messages[] = sprintf("  <info>%-${width}s</info> %s", $name, $command->getDescription());
@@ -164,7 +160,7 @@ class Application extends BaseApplication
         // Options
         $messages[] = '<comment>Common options:</comment>';
         foreach ($this->getDefinition()->getOptions() as $option) {
-            if (in_array($option->getName(), array('help', 'ansi', 'no-ansi', 'no-interaction', 'version'))) {
+            if (in_array($option->getName(), ['help', 'ansi', 'no-ansi', 'no-interaction', 'version'])) {
                 continue;
             }
             $messages[] = sprintf(

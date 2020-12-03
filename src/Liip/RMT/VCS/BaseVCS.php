@@ -11,11 +11,11 @@
 
 namespace Liip\RMT\VCS;
 
-abstract class BaseVCS implements \Liip\RMT\VCS\VCSInterface
+abstract class BaseVCS implements VCSInterface
 {
     protected $options;
 
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         $this->options = $options;
     }

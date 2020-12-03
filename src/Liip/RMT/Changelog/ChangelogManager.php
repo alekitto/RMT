@@ -11,6 +11,9 @@
 
 namespace Liip\RMT\Changelog;
 
+use Liip\RMT\Exception;
+use Liip\RMT\Exception\NoReleaseFoundException;
+
 /**
  * Class to read/write the changelog file
  */
@@ -26,12 +29,11 @@ class ChangelogManager
             touch($filePath);
         }
         if (!is_file($filePath) || !is_writable($filePath)) {
-            throw new \Liip\RMT\Exception("Unable to write file [$filePath]");
+            throw new Exception("Unable to write file [$filePath]");
         }
         $this->filePath = $filePath;
 
         // Store the formatter
-        $this->format = $format;
         $formatterClass = 'Liip\\RMT\\Changelog\\Formatter\\'.ucfirst($format).'ChangelogFormatter';
         if (!class_exists($formatterClass)) {
             throw new \Exception("There is no formatter for [$format]");
@@ -39,7 +41,7 @@ class ChangelogManager
         $this->formatter = new $formatterClass();
     }
 
-    public function update($version, $comment, $options = array())
+    public function update($version, $comment, $options = [])
     {
         $lines = file($this->filePath, FILE_IGNORE_NEW_LINES);
         $lines = $this->formatter->updateExistingLines($lines, $version, $comment, $options);
@@ -53,7 +55,7 @@ class ChangelogManager
         if ($result === 1) {
             return $match[1];
         }
-        throw new \Liip\RMT\Exception\NoReleaseFoundException(
+        throw new NoReleaseFoundException(
             'There is a format error in the CHANGELOG file, impossible to read the last version number'
         );
     }

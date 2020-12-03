@@ -11,6 +11,7 @@
 
 namespace Liip\RMT\Prerequisite;
 
+use Exception;
 use Liip\RMT\Action\BaseAction;
 use Liip\RMT\Context;
 use Liip\RMT\Information\InformationRequest;
@@ -20,9 +21,8 @@ use Liip\RMT\Information\InformationRequest;
  */
 class ComposerDependencyStabilityCheck extends BaseAction
 {
-
-    const SKIP_OPTION = 'skip-composer-dependency-stability-check';
-    const DEPENDENCY_LISTS = array('require', 'require-dev');
+    public const SKIP_OPTION = 'skip-composer-dependency-stability-check';
+    public const DEPENDENCY_LISTS = ['require', 'require-dev'];
 
     private $whitelist;
     private $dependencyListWhitelists;
@@ -31,8 +31,8 @@ class ComposerDependencyStabilityCheck extends BaseAction
     {
         parent::__construct($options);
 
-        $this->whitelist = array();
-        $this->dependencyListWhitelists = array();
+        $this->whitelist = [];
+        $this->dependencyListWhitelists = [];
 
         if (isset($this->options['whitelist'])) {
             $this->createWhitelists($this->options['whitelist']);
@@ -43,12 +43,11 @@ class ComposerDependencyStabilityCheck extends BaseAction
     {
         foreach ($whitelistConfig as $listing) {
             if (isset($listing[1])) {
-                if (!in_array($listing[1], self::DEPENDENCY_LISTS)) {
-                    throw new \Exception("configuration error: "
-                    . $listing[1] . " is no valid composer dependency section");
+                if (!in_array($listing[1], self::DEPENDENCY_LISTS, true)) {
+                    throw new Exception("configuration error: " . $listing[1] . " is no valid composer dependency section");
                 }
                 if (!isset($this->dependencyListWhitelists[$listing[1]])) {
-                    $this->dependencyListWhitelists[$listing[1]] = array();
+                    $this->dependencyListWhitelists[$listing[1]] = [];
                 }
                 $this->dependencyListWhitelists[$listing[1]][] = $listing[0];
             } else {
@@ -70,7 +69,7 @@ class ComposerDependencyStabilityCheck extends BaseAction
         }
 
         if (!is_readable('composer.json')) {
-            throw new \Exception(
+            throw new Exception(
                 'composer.json can not be read (permissions?), (you can force a release with option --'
                 . self::SKIP_OPTION.')'
             );
@@ -94,7 +93,9 @@ class ComposerDependencyStabilityCheck extends BaseAction
      */
     private function isListIgnored($dependencyList)
     {
-        return isset($this->options['ignore-' . $dependencyList]) && $this->options['ignore-' . $dependencyList] === true;
+        $index = 'ignore-' . $dependencyList;
+
+        return isset($this->options[$index]) && $this->options[$index] === true;
     }
 
     /**
@@ -115,9 +116,9 @@ class ComposerDependencyStabilityCheck extends BaseAction
     {
         if (isset($this->dependencyListWhitelists[$dependencyList])) {
             return array_merge($this->whitelist, $this->dependencyListWhitelists[$dependencyList]);
-        } else {
-            return $this->whitelist;
         }
+
+        return $this->whitelist;
     }
 
     /**
@@ -126,13 +127,13 @@ class ComposerDependencyStabilityCheck extends BaseAction
      *
      * @param $dependencyList array
      * @param $whitelist array
-     * @throws \Exception
+     * @throws Exception
      */
-    private function checkDependencies($dependencyList, $whitelist = array()) {
+    private function checkDependencies($dependencyList, $whitelist = []) {
         foreach ($dependencyList as $dependency => $version) {
             if (($this->startsWith($version, 'dev-') || $this->endsWith($version, '@dev'))
-                && !in_array($dependency, $whitelist)) {
-                throw new \Exception(
+                && !in_array($dependency, $whitelist, true)) {
+                throw new Exception(
                     $dependency
                     . ' uses dev-version but is not listed on whitelist '
                     . ' (you can force a release with option --'.self::SKIP_OPTION.')'
@@ -164,15 +165,15 @@ class ComposerDependencyStabilityCheck extends BaseAction
 
     public function getInformationRequests()
     {
-        return array(
+        return [
             new InformationRequest(
                 self::SKIP_OPTION,
-                array(
+                [
                     'description' => 'Do not check composer.json for minimum-stability before the release',
                     'type' => 'confirmation',
                     'interactive' => false,
-                )
+                ]
             ),
-        );
+        ];
     }
 }

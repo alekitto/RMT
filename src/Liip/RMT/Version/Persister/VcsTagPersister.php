@@ -12,6 +12,8 @@
 namespace Liip\RMT\Version\Persister;
 
 use Liip\RMT\Context;
+use Liip\RMT\Exception;
+use Liip\RMT\Exception\NoReleaseFoundException;
 
 class VcsTagPersister implements PersisterInterface
 {
@@ -19,7 +21,7 @@ class VcsTagPersister implements PersisterInterface
     protected $vcs;
     protected $options;
 
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         $this->options = $options;
         $this->vcs = Context::get('vcs');
@@ -36,12 +38,12 @@ class VcsTagPersister implements PersisterInterface
     {
         $tags = $this->getValidVersionTags($this->versionRegex);
         if (count($tags) === 0) {
-            throw new \Liip\RMT\Exception\NoReleaseFoundException('No VCS tag matching the regex [' . $this->getTagPrefix() . $this->versionRegex . ']');
+            throw new NoReleaseFoundException('No VCS tag matching the regex [' . $this->getTagPrefix() . $this->versionRegex . ']');
         }
 
         // Extract versions from tags and sort them
         $versions = $this->getVersionFromTags($tags);
-        usort($versions, array(Context::get('version-generator'), 'compareTwoVersions'));
+        usort($versions, [Context::get('version-generator'), 'compareTwoVersions']);
 
         return array_pop($versions);
     }
@@ -59,12 +61,12 @@ class VcsTagPersister implements PersisterInterface
 
     public function getInformationRequests()
     {
-        return array();
+        return [];
     }
 
     public function getTagPrefix()
     {
-        return $this->generatePrefix(isset($this->options['tag-prefix']) ? $this->options['tag-prefix'] : '');
+        return $this->generatePrefix($this->options['tag-prefix'] ?? '');
     }
 
     public function getTagFromVersion($versionName)
@@ -79,7 +81,7 @@ class VcsTagPersister implements PersisterInterface
 
     public function getVersionFromTags($tags)
     {
-        $versions = array();
+        $versions = [];
         foreach ($tags as $tag) {
             $versions[] = $this->getVersionFromTag($tag);
         }
@@ -110,12 +112,12 @@ class VcsTagPersister implements PersisterInterface
     {
         preg_match_all('/\{([^\}]*)\}/', $userTag, $placeHolders);
         foreach ($placeHolders[1] as $pos => $placeHolder) {
-            if ($placeHolder == 'branch-name') {
+            if ($placeHolder === 'branch-name') {
                 $replacement = $this->vcs->getCurrentBranch();
-            } elseif ($placeHolder == 'date') {
+            } elseif ($placeHolder === 'date') {
                 $replacement = date('Y-m-d');
             } else {
-                throw new \Liip\RMT\Exception("There is no rules to process the prefix placeholder [$placeHolder]");
+                throw new Exception("There is no rules to process the prefix placeholder [$placeHolder]");
             }
             $userTag = str_replace($placeHolders[0][$pos], $replacement, $userTag);
         }

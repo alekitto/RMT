@@ -11,6 +11,8 @@
 
 namespace Liip\RMT\VCS;
 
+use Liip\RMT\Exception;
+
 class Hg extends BaseVCS
 {
     protected $dryRun = false;
@@ -27,7 +29,7 @@ class Hg extends BaseVCS
     public function getModifiedFilesSince($tag)
     {
         $data = $this->executeHgCommand("status --rev $tag:tip");
-        $files = array();
+        $files = [];
         foreach ($data as $d) {
             $parts = explode(' ', $d);
             $files[$parts[1]] = $parts[0];
@@ -44,7 +46,7 @@ class Hg extends BaseVCS
     public function getTags()
     {
         $tags = $this->executeHgCommand('tags');
-        $tags = array_map(function ($t) {
+        $tags = array_map(static function ($t) {
             $parts = explode(' ', $t);
 
             return $parts[0];
@@ -65,7 +67,7 @@ class Hg extends BaseVCS
 
     public function publishChanges($remote = null)
     {
-        $remote = $remote === null ? 'default' : $remote;
+        $remote = $remote ?? 'default';
         $this->executeHgCommand("push $remote");
     }
 
@@ -95,7 +97,7 @@ class Hg extends BaseVCS
         exec($cmd, $result, $exitCode);
 
         if ($exitCode !== 0) {
-            throw new \Liip\RMT\Exception('Error while executing hg command: '.$cmd);
+            throw new Exception('Error while executing hg command: '.$cmd);
         }
 
         return $result;

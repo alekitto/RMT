@@ -41,16 +41,16 @@ class AddTopChangelogFormatter
 {
     public function updateExistingLines($lines, $version, $comment, $options)
     {
-        $pos = isset($options['insert-at']) ? $options['insert-at'] : 0;
+        $pos = $options['insert-at'] ?? 0;
 
         if (!empty($comment)) {
-            array_splice($lines, $pos, 0, array($comment, ''));
+            array_splice($lines, $pos, 0, [$comment, '']);
         }
         if (isset($options['extra-lines'])) {
             array_splice($lines, $pos, 0, $options['extra-lines']);
         }
 
-        array_splice($lines, $pos, 0, array($version, str_repeat('-', strlen($version)), ''));
+        array_splice($lines, $pos, 0, [$version, str_repeat('-', strlen($version)), '']);
 
         return $lines;
     }

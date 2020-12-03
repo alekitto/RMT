@@ -11,6 +11,8 @@
 
 namespace Liip\RMT\Command;
 
+use Exception;
+use InvalidArgumentException;
 use Liip\RMT\Application;
 use Liip\RMT\Output\Output;
 use Liip\RMT\VCS\VCSInterface;
@@ -19,6 +21,7 @@ use Liip\RMT\Context;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\QuestionHelper;
 
 /**
  * Wrapper/helper around Symfony command
@@ -43,10 +46,11 @@ abstract class BaseCommand extends Command
         // Store the input and output for easier usage
         $this->input = $input;
         if (!$output instanceof Output) {
-            throw new \InvalidArgumentException('Not the expected output type');
+            throw new InvalidArgumentException('Not the expected output type');
         }
+
         $this->output = $output;
-        $dialogHelper = class_exists('Symfony\Component\Console\Helper\QuestionHelper')
+        $dialogHelper = class_exists(QuestionHelper::class)
             ? $this->getHelperSet()->get('question')
             : $this->getHelperSet()->get('dialog')
         ;
@@ -86,7 +90,7 @@ abstract class BaseCommand extends Command
             $vcs = Context::get('vcs');
             try {
                 $branch = $vcs->getCurrentBranch();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 echo "\033[31mImpossible to read the branch name\033[37m";
             }
             if (isset($branch)) {
@@ -98,10 +102,10 @@ abstract class BaseCommand extends Command
         Context::getInstance()->setParameter('config', $config);
 
         // Populate the context
-        foreach (array('version-generator', 'version-persister') as $service) {
+        foreach (['version-generator', 'version-persister'] as $service) {
             Context::getInstance()->setService($service, $config[$service]['class'], $config[$service]['options']);
         }
-        foreach (array('prerequisites', 'pre-release-actions', 'post-release-actions') as $listName) {
+        foreach (['prerequisites', 'pre-release-actions', 'post-release-actions'] as $listName) {
             Context::getInstance()->createEmptyList($listName);
             foreach ($config[$listName] as $service) {
                 Context::getInstance()->addToList($listName, $service['class'], $service['options']);
@@ -113,7 +117,7 @@ abstract class BaseCommand extends Command
     }
 
     /**
-     * @return \Liip\RMT\Application
+     * @return Application
      */
     public function getApplication()
     {

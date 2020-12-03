@@ -15,7 +15,7 @@ use Liip\RMT\Exception\NoReleaseFoundException;
 
 interface PersisterInterface
 {
-    public function __construct($options = array());
+    public function __construct($options = []);
 
     /**
      * Return the current release name

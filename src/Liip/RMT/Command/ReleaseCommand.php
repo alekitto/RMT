@@ -11,6 +11,8 @@
 
 namespace Liip\RMT\Command;
 
+use Exception;
+use Liip\RMT\Exception\NoReleaseFoundException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Liip\RMT\Information\InformationCollector;
@@ -47,14 +49,14 @@ class ReleaseCommand extends BaseCommand
         // Add a specific option if it's the first release
         try {
             Context::get('version-persister')->getCurrentVersion();
-        } catch (\Liip\RMT\Exception\NoReleaseFoundException $e) {
+        } catch (NoReleaseFoundException $e) {
             $ic->registerRequest(
-                new InformationRequest('confirm-first', array(
+                new InformationRequest('confirm-first', [
                     'description' => 'This is the first release for the current branch',
                     'type' => 'confirmation',
-                ))
+                ])
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo 'Error while trying to read the current version';
         }
 
@@ -63,7 +65,7 @@ class ReleaseCommand extends BaseCommand
         $ic->registerRequests(Context::get('version-persister')->getInformationRequests());
 
         // Register options of all lists (prerequistes and actions)
-        foreach (array('prerequisites', 'pre-release-actions', 'post-release-actions') as $listName) {
+        foreach (['prerequisites', 'pre-release-actions', 'post-release-actions'] as $listName) {
             foreach (Context::getInstance()->getList($listName) as $listItem) {
                 $ic->registerRequests($listItem->getInformationRequests());
             }
@@ -122,8 +124,8 @@ class ReleaseCommand extends BaseCommand
         // Get the current version or generate a new one if the user has confirm that this is required
         try {
             $currentVersion = Context::get('version-persister')->getCurrentVersion();
-        } catch (\Liip\RMT\Exception\NoReleaseFoundException $e) {
-            if (Context::get('information-collector')->getValueFor('confirm-first') == false) {
+        } catch (NoReleaseFoundException $e) {
+            if (Context::get('information-collector')->getValueFor('confirm-first') === false) {
                 throw $e;
             }
             $currentVersion = Context::get('version-generator')->getInitialVersion();

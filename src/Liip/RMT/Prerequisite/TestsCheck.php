@@ -11,6 +11,7 @@
 
 namespace Liip\RMT\Prerequisite;
 
+use Exception;
 use Liip\RMT\Context;
 use Liip\RMT\Information\InformationRequest;
 use Liip\RMT\Action\BaseAction;
@@ -20,14 +21,14 @@ use Liip\RMT\Action\BaseAction;
  */
 class TestsCheck extends BaseAction
 {
-    const SKIP_OPTION = 'skip-testing';
+    public const SKIP_OPTION = 'skip-testing';
 
     public function __construct($options)
     {
-        $this->options = array_merge(array(
+        parent::__construct(array_merge([
             'command' => 'phpunit --stop-on-failure',
             'expected_exit_code' => 0,
-        ), $options);
+        ], $options));
     }
 
     public function execute()
@@ -40,23 +41,23 @@ class TestsCheck extends BaseAction
         }
 
         // Run the tests and live output with the standard output class
-        $timeout = isset($this->options['timeout']) ? $this->options['timeout'] : null;
+        $timeout = $this->options[ 'timeout' ] ?? null;
         $process = $this->executeCommandInProcess($this->options['command'], $timeout);
 
         // Break up if the result is not good
         if ($process->getExitCode() !== $this->options['expected_exit_code']) {
-            throw new \Exception('Tests fails (you can force a release with option --'.self::SKIP_OPTION.')');
+            throw new Exception('Tests fails (you can force a release with option --'.self::SKIP_OPTION.')');
         }
     }
 
     public function getInformationRequests()
     {
-        return array(
-            new InformationRequest(self::SKIP_OPTION, array(
+        return [
+            new InformationRequest(self::SKIP_OPTION, [
                 'description' => 'Do not run the tests before the release',
                 'type' => 'confirmation',
                 'interactive' => false,
-            )),
-        );
+            ]),
+        ];
     }
 }

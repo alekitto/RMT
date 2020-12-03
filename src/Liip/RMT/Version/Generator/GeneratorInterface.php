@@ -13,7 +13,7 @@ namespace Liip\RMT\Version\Generator;
 
 interface GeneratorInterface
 {
-    public function __construct($options = array());
+    public function __construct($options = []);
 
     /**
      * Return the next version number, according to the current one and optional options

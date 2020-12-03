@@ -19,21 +19,18 @@ use Liip\RMT\VCS\VCSInterface;
  */
 class VcsCommitAction extends BaseAction
 {
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
-        $this->options = array_merge(
-            array(
-                'commit-message' => 'Release of new version %version%',
-            ),
-            $options
-        );
+        parent::__construct(array_merge([
+            'commit-message' => 'Release of new version %version%',
+        ], $options));
     }
 
     public function execute()
     {
         /** @var VCSInterface $vcs */
         $vcs = Context::get('vcs');
-        if (count($vcs->getLocalModifications()) == 0) {
+        if (count($vcs->getLocalModifications()) === 0) {
             Context::get('output')->writeln('<error>No modification found, aborting commit</error>');
 
             return;

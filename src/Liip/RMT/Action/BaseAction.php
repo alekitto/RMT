@@ -16,9 +16,9 @@ use Symfony\Component\Process\Process;
 
 abstract class BaseAction
 {
-    protected $options = array();
+    protected $options = [];
 
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         $this->options = $options;
     }
@@ -49,7 +49,7 @@ abstract class BaseAction
      */
     public function getInformationRequests()
     {
-        return array();
+        return [];
     }
 
     /**

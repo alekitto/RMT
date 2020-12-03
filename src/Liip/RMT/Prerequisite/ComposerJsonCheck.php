@@ -11,6 +11,7 @@
 
 namespace Liip\RMT\Prerequisite;
 
+use Exception;
 use Liip\RMT\Context;
 use Liip\RMT\Information\InformationRequest;
 use Liip\RMT\Action\BaseAction;
@@ -20,13 +21,13 @@ use Liip\RMT\Action\BaseAction;
  */
 class ComposerJsonCheck extends BaseAction
 {
-    const SKIP_OPTION = 'skip-composer-json-check';
+    public const SKIP_OPTION = 'skip-composer-json-check';
 
     public function __construct($options)
     {
-        $this->options = array_merge(array(
+        parent::__construct(array_merge([
             'composer' => 'php composer.phar',
-        ), $options);
+        ], $options));
     }
 
     public function execute()
@@ -43,7 +44,7 @@ class ComposerJsonCheck extends BaseAction
 
         // Break up if the result is not good
         if ($process->getExitCode() !== 0) {
-            throw new \Exception('composer.json invalid (you can force a release with option --'.self::SKIP_OPTION.')');
+            throw new Exception('composer.json invalid (you can force a release with option --'.self::SKIP_OPTION.')');
         }
 
         $this->confirmSuccess();
@@ -51,12 +52,12 @@ class ComposerJsonCheck extends BaseAction
 
     public function getInformationRequests()
     {
-        return array(
-            new InformationRequest(self::SKIP_OPTION, array(
+        return [
+            new InformationRequest(self::SKIP_OPTION, [
                 'description' => 'Do not validate composer.json before the release',
                 'type' => 'confirmation',
                 'interactive' => false,
-            )),
-        );
+            ]),
+        ];
     }
 }

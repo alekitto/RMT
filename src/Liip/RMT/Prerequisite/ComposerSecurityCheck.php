@@ -11,6 +11,7 @@
 
 namespace Liip\RMT\Prerequisite;
 
+use Exception;
 use Liip\RMT\Action\BaseAction;
 use Liip\RMT\Context;
 use Liip\RMT\Information\InformationRequest;
@@ -21,12 +22,7 @@ use SensioLabs\Security\SecurityChecker;
  */
 class ComposerSecurityCheck extends BaseAction
 {
-    const SKIP_OPTION = 'skip-composer-security-check';
-
-    public function __construct($options)
-    {
-        $this->options = $options;
-    }
+    public const SKIP_OPTION = 'skip-composer-security-check';
 
     public function execute()
     {
@@ -44,7 +40,7 @@ class ComposerSecurityCheck extends BaseAction
         $alerts = $checker->check('composer.lock');
 
         // exit succesfull if everything is fine
-        if (count($alerts) == 0) {
+        if (count($alerts) === 0) {
             $this->confirmSuccess();
 
             return;
@@ -62,22 +58,22 @@ class ComposerSecurityCheck extends BaseAction
         }
 
         // throw exception to have check fail
-        throw new \Exception(
+        throw new Exception(
             'composer.lock contains insecure packages (you can force a release with option --'.self::SKIP_OPTION.')'
         );
     }
 
     public function getInformationRequests()
     {
-        return array(
+        return [
             new InformationRequest(
                 self::SKIP_OPTION,
-                array(
+                [
                     'description' => 'Do not run composer security check before the release',
                     'type' => 'confirmation',
                     'interactive' => false,
-                )
+                ]
             ),
-        );
+        ];
     }
 }

@@ -16,6 +16,9 @@ namespace Liip\RMT\Config;
  */
 class Handler
 {
+    private $rawConfig;
+    private $projectRoot;
+
     public function __construct($rawConfig = null, $projectRoot = null)
     {
         $this->rawConfig = $rawConfig;
@@ -24,15 +27,15 @@ class Handler
 
     public function getDefaultConfig()
     {
-        return array(
+        return [
             'vcs' => null,
-            'prerequisites' => array(),
-            'pre-release-actions' => array(),
+            'prerequisites' => [],
+            'pre-release-actions' => [],
             'version-generator' => null,
             'version-persister' => null,
-            'post-release-actions' => array(),
-            'branch-specific' => array(),
-        );
+            'post-release-actions' => [],
+            'branch-specific' => [],
+        ];
     }
 
     public function getConfigForBranch($branchName)
@@ -69,7 +72,7 @@ class Handler
         }
 
         // Return custom branch config
-        if (isset($branchName) && isset($branchesConfig[$branchName])) {
+        if (isset($branchName, $branchesConfig[ $branchName ])) {
             return array_replace_recursive($baseConfig, $branchesConfig[$branchName]);
         }
 
@@ -77,7 +80,7 @@ class Handler
     }
 
     /**
-     * Normalize all config entry to be a normalize class entry: array("class"=>XXX, "options"=>YYY)
+     * Normalize all config entry to be a normalize class entry: ["class"=>XXX, "options"=>YYY]
      */
     protected function normalize($config)
     {
@@ -85,24 +88,25 @@ class Handler
         $this->validateRootElements($config);
 
         // For single value elements, normalize all class name and options, remove null entry
-        foreach (array('vcs', 'version-generator', 'version-persister') as $configKey) {
+        foreach (['vcs', 'version-generator', 'version-persister'] as $configKey) {
             $value = $config[$configKey];
-            if ($value == null) {
+            if ($value === null) {
                 unset($config[$configKey]);
                 continue;
             }
+
             $config[$configKey] = $this->getClassAndOptions($value, $configKey);
         }
 
         // Same process but for list value elements
-        foreach (array('prerequisites', 'pre-release-actions', 'post-release-actions') as $configKey) {
+        foreach (['prerequisites', 'pre-release-actions', 'post-release-actions'] as $configKey) {
             foreach ($config[$configKey] as $key => $item) {
-
                 // Accept the element to be define by key or by value
                 if (!is_numeric($key)) {
-                    if ($item == null) {
-                        $item = array();
+                    if ($item === null) {
+                        $item = [];
                     }
+
                     $item['name'] = $key;
                 }
 
@@ -124,8 +128,8 @@ class Handler
         }
 
         // Check for missing keys
-        foreach (array('version-generator', 'version-persister') as $mandatoryParam) {
-            if ($config[$mandatoryParam] == null) {
+        foreach (['version-generator', 'version-persister'] as $mandatoryParam) {
+            if ($config[$mandatoryParam] === null) {
                 throw new Exception("[$mandatoryParam] should be defined");
             }
         }
@@ -138,11 +142,10 @@ class Handler
     {
         if (is_string($rawConfig)) {
             $class = $this->findClass($rawConfig, $sectionName);
-            $options = array();
+            $options = [];
         } elseif (is_array($rawConfig)) {
-
             // Handling Yml corner case (see https://github.com/liip/RMT/issues/54)
-            if (count($rawConfig) == 1 && key($rawConfig) !== 'name') {
+            if (count($rawConfig) === 1 && key($rawConfig) !== 'name') {
                 $name = key($rawConfig);
                 $rawConfig = is_array(reset($rawConfig)) ? reset($rawConfig) : array();
                 $rawConfig['name'] = $name;
@@ -160,7 +163,7 @@ class Handler
             throw new Exception("Invalid configuration for [$sectionName] should be a object name or an array with name and options");
         }
 
-        return array('class' => $class, 'options' => $options);
+        return ['class' => $class, 'options' => $options];
     }
 
     /**
@@ -176,9 +179,9 @@ class Handler
                 $lastPart = array_pop($parts);
 
                 return str_replace('.php', '', $lastPart);
-            } else {
-                throw new \Liip\RMT\Exception("Impossible to open [$file] please review your config");
             }
+
+            throw new \Liip\RMT\Exception("Impossible to open [$file] please review your config");
         }
 
         return $this->findInternalClass($name, $sectionName);
@@ -196,26 +199,25 @@ class Handler
         }
 
         // Guess the namespace
-        $namespacesByType = array(
+        $namespacesByType = [
             'vcs' => 'Liip\RMT\VCS',
             'prerequisites' => 'Liip\RMT\Prerequisite',
             'pre-release-actions' => 'Liip\RMT\Action',
             'post-release-actions' => 'Liip\RMT\Action',
             'version-generator' => 'Liip\RMT\Version\Generator',
             'version-persister' => 'Liip\RMT\Version\Persister',
-        );
-        $nameSpace = $namespacesByType[$classType];
+        ];
 
         // Guess the class name
         // Convert from xxx-yyy-zzz to XxxYyyZzz and append suffix
-        $suffixByType = array(
+        $suffixByType = [
             'vcs' => '',
             'prerequisites' => '',
             'pre-release-actions' => 'Action',
             'post-release-actions' => 'Action',
             'version-generator' => 'Generator',
             'version-persister' => 'Persister',
-        );
+        ];
         $nameSpace = $namespacesByType[$classType];
         $className = str_replace(' ', '', ucwords(str_replace('-', ' ', $name))).$suffixByType[$classType];
 

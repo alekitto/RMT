@@ -11,6 +11,8 @@
 
 namespace Liip\RMT\Information;
 
+use Exception;
+
 /**
  * Represents the question asked to the user (formatter for InformationRequest)
  */
@@ -25,7 +27,7 @@ class InteractiveQuestion
 
     public function getFormatedText()
     {
-        if ($this->informationRequest->getOption('type') == 'confirmation') {
+        if ($this->informationRequest->getOption('type') === 'confirmation') {
             $text = 'Please confirm that ';
         } else {
             $text = 'Please provide ';
@@ -33,7 +35,7 @@ class InteractiveQuestion
 
         $text .= strtolower($this->informationRequest->getOption('description'));
 
-        if ($this->informationRequest->getOption('type') == 'choice') {
+        if ($this->informationRequest->getOption('type') === 'choice') {
             $text .= "\n". $this->formatChoices(
                 $this->informationRequest->getOption('choices'),
                 $this->informationRequest->getOption('choices_shortcuts')
@@ -78,7 +80,7 @@ class InteractiveQuestion
         $default = $this->informationRequest->getOption('default');
         if (count($shortcuts = $this->informationRequest->getOption('choices_shortcuts')) > 0) {
             foreach ($shortcuts as $shortcut => $value) {
-                if ($default == $value) {
+                if ($default === $value) {
                     return $shortcut;
                 }
             }
@@ -94,17 +96,17 @@ class InteractiveQuestion
 
     public function getValidator()
     {
-        return array($this, 'validate');
+        return [$this, 'validate'];
     }
 
     public function validate($value)
     {
         // Replace potential shortcuts
         if (count($shortcuts = $this->informationRequest->getOption('choices_shortcuts')) > 0) {
-            if (in_array($value, array_keys($shortcuts))) {
+            if (array_key_exists($value, $shortcuts)) {
                 $value = $shortcuts[$value];
             } else {
-                throw new \Exception('Please select a value in '.json_encode(array_keys($shortcuts)));
+                throw new Exception('Please select a value in '.json_encode(array_keys($shortcuts)));
             }
         }
 

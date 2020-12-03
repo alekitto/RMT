@@ -11,6 +11,7 @@
 
 namespace Liip\RMT\Action;
 
+use Exception;
 use Phar;
 use FilesystemIterator;
 use Liip\RMT\Context;
@@ -24,14 +25,14 @@ class BuildPharPackageAction extends BaseAction
 
     public function __construct($options)
     {
-        $this->options = array_merge(array(
+        parent::__construct(array_merge([
             'package-name' => 'rmt-package',
             'destination' => '/tmp/',
             'excluded-paths' => '',
-            'metadata' => array(),
+            'metadata' => [],
             'default-stub-cli' => '<?php __HALT_COMPILER(); ?>',
             'default-stub-web' => '<?php __HALT_COMPILER(); ?>',
-        ), $options);
+        ], $options));
     }
 
     public function execute()
@@ -54,7 +55,7 @@ class BuildPharPackageAction extends BaseAction
 
         $phar = new Phar($output, FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_FILENAME);
         $phar->buildFromDirectory(Context::getParam('project-root'), $this->options['excluded-paths']);
-        $phar->setMetadata(array_merge(array('version' => $this->releaseVersion), $this->options['metadata']));
+        $phar->setMetadata(array_merge(['version' => $this->releaseVersion], $this->options['metadata']));
         $phar->setDefaultStub($this->options['default-stub-cli'], $this->options['default-stub-web']);
 
         return $output;
@@ -105,7 +106,7 @@ class BuildPharPackageAction extends BaseAction
     {
         try {
             $currentVersion = Context::get('version-persister')->getCurrentVersion();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $currentVersion = Context::get('version-generator')->getInitialVersion();
         }
 

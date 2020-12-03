@@ -11,9 +11,10 @@
 
 namespace Liip\RMT\Output;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Helper\DialogHelper;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,9 +33,9 @@ class Output extends ConsoleOutput
     protected $positionIsALineStart = true;
 
     /** @var FormatterHelper */
-    protected $formatterHelper = null;
-    /** @var DialogHelper|QuestionHelper */
-    protected $dialogHelper = null;
+    protected $formatterHelper;
+    /** @var QuestionHelper */
+    protected $dialogHelper;
 
     public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null)
     {
@@ -48,7 +49,7 @@ class Output extends ConsoleOutput
         $this->getFormatter()->setStyle('title', new OutputFormatterStyle('white', 'blue'));
     }
 
-    public function doWrite($message, $newline)
+    public function doWrite(string $message, bool $newline)
     {
         // In case the $message is multi lines
         $message = str_replace(PHP_EOL, PHP_EOL.$this->getIndentPadding(), $message);
@@ -121,7 +122,7 @@ class Output extends ConsoleOutput
 
         if ($this->dialogHelper instanceof QuestionHelper) {
             if (!$input) {
-                throw new \InvalidArgumentException('With symfony 3, the input stream may not be null');
+                throw new InvalidArgumentException('With symfony 3, the input stream may not be null');
             }
             $q = new Question($text, $question->getDefault());
             $q->setValidator($question->getValidator());
@@ -132,16 +133,7 @@ class Output extends ConsoleOutput
             return $this->dialogHelper->ask($input, $this, $q);
         }
 
-        if ($this->dialogHelper instanceof DialogHelper) {
-
-            if ($question->isHiddenAnswer()) {
-                return $this->dialogHelper->askHiddenResponseAndValidate($this, $text, $question->getValidator(), false);
-            }
-
-            return $this->dialogHelper->askAndValidate($this, $text, $question->getValidator(), false, $question->getDefault());
-        }
-
-        throw new \RuntimeException("Invalid dialogHelper");
+        throw new RuntimeException("Invalid dialogHelper");
     }
 
     // when we drop symfony 2.3 support, we should switch to the QuestionHelper (since 2.5) and drop this method as it adds no value
@@ -149,16 +141,12 @@ class Output extends ConsoleOutput
     {
         if ($this->dialogHelper instanceof QuestionHelper) {
             if (!$input) {
-                throw new \InvalidArgumentException('With symfony 3, the input stream may not be null');
+                throw new InvalidArgumentException('With symfony 3, the input stream may not be null');
             }
             return $this->dialogHelper->ask($input, $this, new ConfirmationQuestion($text));
         }
 
-        if ($this->dialogHelper instanceof DialogHelper) {
-            return $this->dialogHelper->askConfirmation($this, $text);
-        }
-
-        throw new \RuntimeException("Invalid dialogHelper");
+        throw new RuntimeException("Invalid dialogHelper");
 
     }
 }

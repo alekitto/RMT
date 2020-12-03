@@ -15,11 +15,12 @@ use Liip\RMT\Config\Exception as ConfigException;
 use Liip\RMT\Context;
 use Liip\RMT\Exception;
 use ReflectionClass;
+use ReflectionException;
 
 class FilesUpdateAction extends BaseAction
 {
     /**
-     * @throws ConfigException|Exception|\ReflectionException
+     * @throws ConfigException|Exception|ReflectionException
      */
     public function execute()
     {
@@ -29,7 +30,7 @@ class FilesUpdateAction extends BaseAction
 
         foreach ($this->options as $option) {
             $file = $option[0];
-            $pattern = isset($option[1]) ? $option[1] : null;
+            $pattern = $option[1] ?? null;
 
             if (! file_exists($file)) {
                 $versionClass = new ReflectionClass($file);

@@ -11,46 +11,49 @@
 
 namespace Liip\RMT\Information;
 
+use Exception;
+use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Collect user info
  */
 class InformationCollector
 {
-    protected static $standardRequests = array(
-        'comment' => array(
+    protected static $standardRequests = [
+        'comment' => [
             'description' => 'Comment associated with the release',
             'type' => 'text',
-        ),
-        'type' => array(
+        ],
+        'type' => [
             'description' => 'Release type, can be major, minor or patch',
             'type' => 'choice',
-            'choices' => array('major', 'minor', 'patch'),
-            'choices_shortcuts' => array('m' => 'major', 'i' => 'minor', 'p' => 'patch'),
+            'choices' => ['major', 'minor', 'patch'],
+            'choices_shortcuts' => ['m' => 'major', 'i' => 'minor', 'p' => 'patch'],
             'default' => 'patch',
-        ),
-        'label' => array(
+        ],
+        'label' => [
             'description' => 'Release label, can be rc, beta, alpha or none',
             'type' => 'choice',
-            'choices' => array('rc', 'beta', 'alpha', 'none'),
-            'choices_shortcuts' => array('rc' => 'rc', 'b' => 'beta', 'a' => 'alpha', 'n' => 'none'),
+            'choices' => ['rc', 'beta', 'alpha', 'none'],
+            'choices_shortcuts' => ['rc' => 'rc', 'b' => 'beta', 'a' => 'alpha', 'n' => 'none'],
             'default' => 'none',
-        ),
-    );
+        ],
+    ];
 
-    protected $requests = array();
-    protected $values = array();
+    protected $requests = [];
+    protected $values = [];
 
     public function registerRequest($request)
     {
         $name = $request->getName();
-        if (in_array($name, static::$standardRequests)) {
-            throw new \Exception("Request [$name] is reserved as a standard request name, choose an other name please");
+        if (in_array($name, static::$standardRequests, true)) {
+            throw new Exception("Request [$name] is reserved as a standard request name, choose an other name please");
         }
 
         if ($this->hasRequest($name)) {
-            throw new \Exception("Request [$name] already registered");
+            throw new Exception("Request [$name] already registered");
         }
 
         $this->requests[$name] = $request;
@@ -64,15 +67,15 @@ class InformationCollector
             } elseif ($request instanceof InformationRequest) {
                 $this->registerRequest($request);
             } else {
-                throw new \Exception('Invalid request, must a Request class or a string for standard requests');
+                throw new Exception('Invalid request, must a Request class or a string for standard requests');
             }
         }
     }
 
     public function registerStandardRequest($name)
     {
-        if (!in_array($name, array_keys(static::$standardRequests))) {
-            throw new \Exception("There is no standard request named [$name]");
+        if (! array_key_exists($name, static::$standardRequests)) {
+            throw new Exception("There is no standard request named [$name]");
         }
         if (!isset($this->requests[$name])) {
             $this->requests[$name] = new InformationRequest($name, static::$standardRequests[$name]);
@@ -87,7 +90,7 @@ class InformationCollector
     public function getRequest($name)
     {
         if (!$this->hasRequest($name)) {
-            throw new \InvalidArgumentException("There is no information request named [$name]");
+            throw new InvalidArgumentException("There is no information request named [$name]");
         }
 
         return $this->requests[$name];
@@ -105,7 +108,7 @@ class InformationCollector
      */
     public function getCommandOptions()
     {
-        $consoleOptions = array();
+        $consoleOptions = [];
         foreach ($this->requests as $name => $request) {
             if ($request->isAvailableAsCommandOption()) {
                 $consoleOptions[$name] = $request->convertToCommandOption();
@@ -128,7 +131,7 @@ class InformationCollector
 
     public function getInteractiveQuestions()
     {
-        $questions = array();
+        $questions = [];
         foreach ($this->requests as $name => $request) {
             if ($request->isAvailableForInteractive() && !$request->hasValue()) {
                 $questions[$name] = $request->convertToInteractiveQuestion();
@@ -149,7 +152,7 @@ class InformationCollector
 
     public function setValueFor($requestName, $value)
     {
-        return $this->getRequest($requestName)->setValue($value);
+        $this->getRequest($requestName)->setValue($value);
     }
 
     public function hasValueFor($requestName)
@@ -161,11 +164,12 @@ class InformationCollector
     {
         if ($this->hasRequest($requestName)) {
             return $this->getRequest($requestName)->getValue();
-        } else {
-            if (func_num_args() == 2) {
-                return $default;
-            }
-            throw new \Exception("No request named $requestName");
         }
+
+        if (func_num_args() === 2) {
+            return $default;
+        }
+
+        throw new Exception("No request named $requestName");
     }
 }

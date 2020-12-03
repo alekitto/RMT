@@ -13,6 +13,9 @@ namespace Liip\RMT\Version\Persister;
 
 class TagValidator
 {
+    private $regex;
+    private $tagPrefix;
+
     public function __construct($regex, $tagPrefix = '')
     {
         $this->regex = $regex;
@@ -28,11 +31,11 @@ class TagValidator
      */
     public function isValid($tag)
     {
-        if (strlen($this->tagPrefix) > 0 && strpos($tag, $this->tagPrefix) !== 0) {
+        if ($this->tagPrefix !== '' && strpos($tag, $this->tagPrefix) !== 0) {
             return false;
         }
 
-        return preg_match('/^' . $this->regex . '$/', substr($tag, strlen($this->tagPrefix))) == 1;
+        return preg_match('/^' . $this->regex . '$/', substr($tag, strlen($this->tagPrefix))) === 1;
     }
 
     /**
@@ -44,7 +47,7 @@ class TagValidator
      */
     public function filtrateList($tags)
     {
-        $validTags = array();
+        $validTags = [];
         foreach ($tags as $tag) {
             if ($this->isValid($tag)) {
                 $validTags[] = $tag;

@@ -13,7 +13,7 @@ namespace Liip\RMT\Version\Generator;
 
 class SimpleGenerator implements GeneratorInterface
 {
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
     }
 
@@ -24,7 +24,7 @@ class SimpleGenerator implements GeneratorInterface
 
     public function getInformationRequests()
     {
-        return array();
+        return [];
     }
 
     public function getValidationRegex()
@@ -39,10 +39,6 @@ class SimpleGenerator implements GeneratorInterface
 
     public function compareTwoVersions($a, $b)
     {
-        if ($a == $b) {
-            return 0;
-        }
-
-        return $a < $b ? -1 : 1;
+        return $a <=> $b;
     }
 }

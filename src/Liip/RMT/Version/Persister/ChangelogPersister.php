@@ -18,7 +18,7 @@ class ChangelogPersister implements PersisterInterface
 {
     protected $changelogManager;
 
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         // Define a default changelog name
         if (!array_key_exists('location', $options)) {
@@ -46,12 +46,12 @@ class ChangelogPersister implements PersisterInterface
     {
         $comment = Context::get('information-collector')->getValueFor('comment');
         $type = Context::get('information-collector')->getValueFor('type', null);
-        $this->changelogManager->update($versionNumber, $comment, array('type' => $type));
+        $this->changelogManager->update($versionNumber, $comment, ['type' => $type]);
     }
 
     public function getInformationRequests()
     {
-        return array('comment');
+        return ['comment'];
     }
 
     public function init()

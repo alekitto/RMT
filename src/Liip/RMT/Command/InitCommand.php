@@ -11,6 +11,8 @@
 
 namespace Liip\RMT\Command;
 
+use Exception;
+use Phar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -32,7 +34,7 @@ class InitCommand extends BaseCommand
     {
         $projectDir = $this->getApplication()->getProjectRootDir();
         $this->executablePath = $projectDir.'/RMT';
-        $this->configPath = $configPath == null ? $projectDir.'/.rmt.yml' : $configPath;
+        $this->configPath = $configPath ?? $projectDir.'/.rmt.yml';
         $this->commandPath = realpath(__DIR__.'/../../../../command.php');
 
         // If possible try to generate a relative link for the command if RMT is installed inside the project
@@ -55,36 +57,36 @@ class InitCommand extends BaseCommand
 
         // Create an information collector and configure the different information request
         $this->informationCollector = new InformationCollector();
-        $this->informationCollector->registerRequests(array(
-            new InformationRequest('configonly', array(
+        $this->informationCollector->registerRequests([
+            new InformationRequest('configonly', [
                 'description' => 'if you want to skip creation of the RMT convenience script',
                 'type' => 'yes-no',
                 'command_argument' => true,
                 'interactive' => true,
                 'default' => 'n',
-            )),
-            new InformationRequest('vcs', array(
+            ]),
+            new InformationRequest('vcs', [
                 'description' => 'The VCS system to use',
                 'type' => 'choice',
-                'choices' => array('git', 'hg', 'none'),
-                'choices_shortcuts' => array('g' => 'git', 'h' => 'hg', 'n' => 'none'),
+                'choices' => ['git', 'hg', 'none'],
+                'choices_shortcuts' => ['g' => 'git', 'h' => 'hg', 'n' => 'none'],
                 'default' => 'none',
-            )),
-            new InformationRequest('generator', array(
+            ]),
+            new InformationRequest('generator', [
                 'description' => 'The generator to use for version incrementing',
                 'type' => 'choice',
-                'choices' => array('semantic-versioning', 'basic-increment'),
-                'choices_shortcuts' => array('s' => 'semantic-versioning', 'b' => 'basic-increment'),
-            )),
-            new InformationRequest('persister', array(
+                'choices' => ['semantic-versioning', 'basic-increment'],
+                'choices_shortcuts' => ['s' => 'semantic-versioning', 'b' => 'basic-increment'],
+            ]),
+            new InformationRequest('persister', [
                 'description' => 'The strategy to use to persist the current version value',
                 'type' => 'choice',
-                'choices' => array('vcs-tag', 'changelog'),
-                'choices_shortcuts' => array('t' => 'vcs-tag', 'c' => 'changelog'),
+                'choices' => ['vcs-tag', 'changelog'],
+                'choices_shortcuts' => ['t' => 'vcs-tag', 'c' => 'changelog'],
                 'command_argument' => true,
                 'interactive' => true,
-            )),
-        ));
+            ]),
+        ]);
         foreach ($this->informationCollector->getCommandOptions() as $option) {
             $this->getDefinition()->addOption($option);
         }
@@ -104,14 +106,14 @@ class InitCommand extends BaseCommand
         // Security check for the config
         $configPath = $this->getApplication()->getConfigFilePath();
         if ($configPath !== null && file_exists($configPath) && $input->getOption('force') !== true) {
-            throw new \Exception("A config file already exist ($configPath), if you want to regenerate it, use the --force option");
+            throw new Exception("A config file already exist ($configPath), if you want to regenerate it, use the --force option");
         }
 
         // Guessing elements path
         $this->buildPaths($configPath);
 
         // disable the creation of the conveniance script when within a phar
-        if (extension_loaded('phar') && \Phar::running()) {
+        if (extension_loaded('phar') && Phar::running()) {
             $this->informationCollector->setValueFor('configonly', 'y');
         }
     }
@@ -138,7 +140,7 @@ class InitCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($this->informationCollector->getValueFor('configonly') == 'n') {
+        if ($this->informationCollector->getValueFor('configonly') === 'n') {
             // Create the executable task inside the project home
             $this->getOutput()->writeln("Creation of the new executable <info>{$this->executablePath}</info>");
             file_put_contents(
@@ -153,19 +155,19 @@ class InitCommand extends BaseCommand
 
         // Create the config file from a template
         $this->getOutput()->writeln("Creation of the config file <info>{$this->configPath}</info>");
-        $template = $this->informationCollector->getValueFor('vcs') == 'none' ?
+        $template = $this->informationCollector->getValueFor('vcs') === 'none' ?
             __DIR__.'/../Config/templates/no-vcs-config.yml.tmpl' :
             __DIR__.'/../Config/templates/default-vcs-config.yml.tmpl'
         ;
         $config = file_get_contents($template);
         $generator = $this->informationCollector->getValueFor('generator');
-        foreach (array(
-            'generator' => $generator == 'semantic-versioning' ?
+        foreach ([
+            'generator' => $generator === 'semantic-versioning' ?
                 'semantic # More complex versionning (semantic)' : 'simple  # Same simple versionning',
             'vcs' => $this->informationCollector->getValueFor('vcs'),
             'persister' => $this->informationCollector->getValueFor('persister'),
-            'changelog-format' => $generator == 'semantic-versioning' ? 'semantic' : 'simple',
-        ) as $key => $value) {
+            'changelog-format' => $generator === 'semantic-versioning' ? 'semantic' : 'simple',
+         ] as $key => $value) {
             $config = str_replace("%%$key%%", $value, $config);
         }
         file_put_contents($this->configPath, $config);
@@ -179,14 +181,12 @@ class InitCommand extends BaseCommand
 
     public function getConfigData()
     {
-        $config = array();
+        $config = [];
 
         $vcs = $this->informationCollector->getValueFor('vcs');
         if ($vcs !== 'none') {
             $config['vcs'] = $vcs;
         }
-
-        $generator = $this->informationCollector->getValueFor('generator');
 
         $config['version-persister'] = $this->informationCollector->getValueFor('persister');
 

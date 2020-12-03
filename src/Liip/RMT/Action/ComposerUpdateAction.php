@@ -12,18 +12,19 @@
 namespace Liip\RMT\Action;
 
 use Liip\RMT\Context;
+use Liip\RMT\Exception;
 
 /**
  * Update the version in composer.json
  */
-class ComposerUpdateAction extends \Liip\RMT\Action\BaseAction
+class ComposerUpdateAction extends BaseAction
 {
     public function execute()
     {
         $newVersion = Context::getParam('new-version');
         $composerFile = Context::getParam('project-root').'/composer.json';
         if (!file_exists($composerFile)) {
-            throw new \Liip\RMT\Exception("Impossible to file the composer file ($composerFile)");
+            throw new Exception("Impossible to file the composer file ($composerFile)");
         }
         $fileContent = file_get_contents($composerFile);
         $fileContent = preg_replace('/("version":[^,]*,)/', '"version": "'.$newVersion.'",', $fileContent);
